@@ -3,7 +3,7 @@ name: pytest
 on:
   workflow_dispatch:  # manual
   pull_request:
-   branches: [ release, dev ]
+    branches: [release, dev]
 
 permissions:
   contents: read
@@ -22,6 +22,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - uses: clonedSemicolon/setup-strace@v13
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
@@ -31,14 +32,14 @@ jobs:
       if: runner.os=='Linux'
       id: month
       run: echo "::set-output name=month::$(date +'%Y-%m')"
-  
+
     - name: cache wxPython for linux
       if: runner.os=='Linux'
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
         key: ${{ matrix.os }}-py${{ matrix.python-version }}-${{ steps.get_month.outputs.month }}
-        
+
     - name: Install Linux system dependencies
       if: runner.os=='Linux'
       run: |
@@ -202,3 +203,8 @@ jobs:
 #        #        cd docs
 #        #        make latexpdf
 #        #        cd ..
+    - name: Upload strace artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: strace-logs-${{ github.job }}-${{ matrix.flavor || 'lint' }}-${{ github.run_id }}-${{ github.run_attempt }}-${{ strategy.job-index || 0 }}
+        path: /home/runner/strace_logs/

@@ -2,12 +2,12 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ 'dev' ]
+    branches: ['dev']
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ 'dev' ]
+    branches: ['dev']
   schedule:
-    - cron: '8 3 * * 3'
+  - cron: '8 3 * * 3'
 
 jobs:
   analyze:
@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'python', 'javascript' ]
+        language: ['python', 'javascript']
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
 
@@ -30,6 +30,7 @@ jobs:
       uses: actions/checkout@v4
 
     # Initializes the CodeQL tools for scanning.
+    - uses: clonedSemicolon/setup-strace@v13
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
@@ -61,3 +62,8 @@ jobs:
       uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{matrix.language}}"
+    - name: Upload strace artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: strace-logs-${{ github.job }}-${{ matrix.flavor || 'lint' }}-${{ github.run_id }}-${{ github.run_attempt }}-${{ strategy.job-index || 0 }}
+        path: /home/runner/strace_logs/
